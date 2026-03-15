@@ -8,6 +8,8 @@ import {
   GraduationCap,
   Wallet,
   FileText,
+  FileSignature,
+  Bell,
   LogOut,
   X,
 } from "lucide-react";
@@ -17,6 +19,8 @@ const ITEMS = [
   { key: "attendance", label: "Attendance", icon: GraduationCap },
   { key: "marks", label: "Marks", icon: ClipboardCheck },
   { key: "fees", label: "Fees", icon: Wallet },
+  { key: "assignments", label: "Assignments", icon: FileText },
+  { key: "applications", label: "Applications", icon: FileSignature },
   { key: "report", label: "Report Card", icon: FileText },
 ];
 
@@ -27,6 +31,7 @@ export default function StudentSidebar({
   onNav = NOOP,
   onLogout = NOOP,
   user = { name: "Student", role: "student" },
+  notificationsCount = 0,
   mobileOpen: mobileOpenProp,
   setMobileOpen: setMobileOpenProp,
 }) {
@@ -113,13 +118,32 @@ export default function StudentSidebar({
               }`}
             >
               <Icon size={17} />
-              {label}
+              <span className="flex-1 text-left">{label}</span>
             </button>
           ))}
         </nav>
 
         {/* Footer */}
-        <div className="border-t border-green-800/60 px-3 py-4">
+        <div className="border-t border-green-800/60 px-3 py-4 space-y-2">
+          <button
+            onClick={() => {
+              onNav("notifications");
+              setMobileOpen(false);
+            }}
+            className={`flex w-full items-center gap-3 rounded-xl px-3 py-2.5 text-sm font-medium transition-all ${
+              currentPage === "notifications"
+                ? "bg-green-600 text-white"
+                : "text-green-100 hover:bg-green-800/50 hover:text-white"
+            }`}
+          >
+            <Bell size={16} />
+            <span className="flex-1 text-left">Notifications</span>
+            {notificationsCount > 0 && (
+              <span className="rounded-full bg-red-500 px-2 py-0.5 text-[10px] font-semibold text-red-200">
+                {notificationsCount}
+              </span>
+            )}
+          </button>
           <button
             onClick={onLogout}
             className="flex w-full items-center gap-3 rounded-xl px-3 py-2.5 text-sm font-medium text-red-300 transition-all hover:bg-red-900/30 hover:text-red-200"

@@ -8,6 +8,8 @@ import {
   GraduationCap,
   ClipboardCheck,
   Wallet,
+  Inbox,
+  FileText,
   LogOut,
   X,
 } from "lucide-react";
@@ -18,6 +20,7 @@ const DEFAULT_ITEMS = [
   { key: "attendance", label: "Attendance", icon: GraduationCap },
   { key: "marks", label: "Marks", icon: ClipboardCheck },
   { key: "fees", label: "Fees", icon: Wallet },
+  { key: "assignments", label: "Assignments", icon: FileText },
 ];
 
 const NOOP = () => {};
@@ -77,7 +80,18 @@ const TeacherSidebar = ({
         </nav>
 
         {/* Footer actions */}
-        <div className="px-3 py-4 border-t border-green-800/60">
+        <div className="px-3 py-4 border-t border-green-800/60 space-y-2">
+          <button
+            onClick={() => {
+              onNav("inbox");
+              setMobileOpen(false);
+            }}
+            className={`w-full flex items-center gap-3 px-3 py-2.5 rounded-xl text-sm font-medium transition-all
+              ${currentPage === "inbox" ? "bg-green-600 text-white" : "text-green-200 hover:bg-green-800/50 hover:text-white"}`}
+          >
+            <Inbox size={16} />
+            Inbox
+          </button>
           <button onClick={onLogout}
             className="w-full flex items-center gap-3 px-3 py-2.5 rounded-xl text-sm font-medium text-red-400 hover:bg-red-900/30 hover:text-red-300 transition-all">
             <LogOut size={16}/>Sign Out

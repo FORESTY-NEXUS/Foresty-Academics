@@ -1,7 +1,7 @@
 "use client";
 
 import { useEffect, useMemo, useState } from "react";
-import { AlertCircle, Calendar, CheckCircle, RefreshCw, Users, XCircle } from "lucide-react";
+import { AlertCircle, CheckCircle, MessageSquare, RefreshCw, Users, XCircle } from "lucide-react";
 import PageHeader from "../../../admin/PageHeader";
 import StatCard from "../../../admin/StatCard";
 import Badge from "../../../admin/Badge";
@@ -14,10 +14,19 @@ export default function TeacherAttendance({ onMenu }) {
   const [loading, setLoading] = useState(true);
   const [saving, setSaving] = useState(false);
   const [error, setError] = useState("");
+  const [messageError, setMessageError] = useState("");
   const [data, setData] = useState(null);
   const [selectedClassId, setSelectedClassId] = useState("");
   const [date, setDate] = useState(todayStr());
   const [attState, setAttState] = useState({});
+  const [messageDrafts, setMessageDrafts] = useState({});
+  const [messageOpenId, setMessageOpenId] = useState("");
+  const [sendingByStudent, setSendingByStudent] = useState({});
+  const [sentByStudent, setSentByStudent] = useState({});
+  const [bulkOpen, setBulkOpen] = useState(false);
+  const [bulkMessage, setBulkMessage] = useState("");
+  const [bulkSending, setBulkSending] = useState(false);
+  const [bulkError, setBulkError] = useState("");
 
   const loadAttendance = async (classId = selectedClassId, selectedDate = date) => {
     try {
@@ -39,6 +48,13 @@ export default function TeacherAttendance({ onMenu }) {
       for (const student of payload.students || []) state[student._id] = "Present";
       for (const rec of payload.records || []) state[String(rec.studentId)] = rec.status;
       setAttState(state);
+      setMessageDrafts({});
+      setMessageOpenId("");
+      setSentByStudent({});
+      setMessageError("");
+      setBulkOpen(false);
+      setBulkMessage("");
+      setBulkError("");
     } catch (err) {
       setError(err.message || "Failed to load attendance");
     } finally {
@@ -56,6 +72,117 @@ export default function TeacherAttendance({ onMenu }) {
   );
   const totalCount = data?.students?.length || 0;
   const absentCount = totalCount - presentCount;
+  const classLabel = data?.currentClass ? `${data.currentClass.name} (${data.currentClass.year})` : "";
+  const absentStudents = useMemo(
+    () => (data?.students || []).filter((student) => attState[student._id] === "Absent"),
+    [data, attState]
+  );
+
+  const buildDefaultMessage = (student) => {
+    const dateLabel = date || todayStr();
+    const classChunk = classLabel ? ` for ${classLabel}` : "";
+    return `Absent Warning: You were marked absent on ${dateLabel}${classChunk}. Please contact your teacher if this is incorrect.`;
+  };
+
+  const buildBulkMessage = () => {
+    const dateLabel = date || todayStr();
+    const classChunk = classLabel ? ` for ${classLabel}` : "";
+    return `Absent Warning: You were marked absent on ${dateLabel}${classChunk}. Please contact your teacher if this is incorrect.`;
+  };
+
+  const openMessageEditor = (student) => {
+    setMessageError("");
+    setMessageOpenId((prev) => (prev === student._id ? "" : student._id));
+    setMessageDrafts((prev) => {
+      if (prev[student._id]) return prev;
+      return { ...prev, [student._id]: buildDefaultMessage(student) };
+    });
+  };
+
+  const sendAbsentMessage = async (student) => {
+    if (!selectedClassId) return;
+    setMessageError("");
+    const message = (messageDrafts[student._id] || "").trim();
+    if (!message) {
+      setMessageError("Message cannot be empty.");
+      return;
+    }
+
+    try {
+      setSendingByStudent((prev) => ({ ...prev, [student._id]: true }));
+      const response = await fetch("/api/teacher/notifications", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        credentials: "include",
+        body: JSON.stringify({
+          classId: selectedClassId,
+          studentId: student._id,
+          message,
+          kind: "Absent Warning",
+          contextType: "Class",
+          contextLabel: classLabel,
+          eventDate: date,
+        }),
+      });
+      const json = await response.json();
+      if (!response.ok || !json.success) throw new Error(json?.message || "Failed to send message");
+      setSentByStudent((prev) => ({ ...prev, [student._id]: new Date().toISOString() }));
+    } catch (err) {
+      setMessageError(err.message || "Failed to send message");
+    } finally {
+      setSendingByStudent((prev) => ({ ...prev, [student._id]: false }));
+    }
+  };
+
+  const openBulkMessage = () => {
+    setBulkError("");
+    setBulkOpen((prev) => !prev);
+    setBulkMessage((prev) => (prev ? prev : buildBulkMessage()));
+  };
+
+  const sendBulkMessages = async () => {
+    if (!selectedClassId) return;
+    setBulkError("");
+    const message = bulkMessage.trim();
+    if (!message) {
+      setBulkError("Message cannot be empty.");
+      return;
+    }
+    if (!absentStudents.length) {
+      setBulkError("No absent students selected.");
+      return;
+    }
+
+    try {
+      setBulkSending(true);
+      const response = await fetch("/api/teacher/notifications", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        credentials: "include",
+        body: JSON.stringify({
+          classId: selectedClassId,
+          studentIds: absentStudents.map((s) => s._id),
+          message,
+          kind: "Absent Warning",
+          contextType: "Class",
+          contextLabel: classLabel,
+          eventDate: date,
+        }),
+      });
+      const json = await response.json();
+      if (!response.ok || !json.success) throw new Error(json?.message || "Failed to send messages");
+      const sentAt = new Date().toISOString();
+      setSentByStudent((prev) => {
+        const next = { ...prev };
+        for (const student of absentStudents) next[student._id] = sentAt;
+        return next;
+      });
+    } catch (err) {
+      setBulkError(err.message || "Failed to send messages");
+    } finally {
+      setBulkSending(false);
+    }
+  };
 
   const saveAttendance = async () => {
     if (!selectedClassId) return;
@@ -139,7 +266,7 @@ export default function TeacherAttendance({ onMenu }) {
                 setDate(e.target.value);
                 loadAttendance(selectedClassId, e.target.value);
               }}
-              className="rounded-xl border border-gray-200 bg-white px-3 py-2 text-sm text-white dark:border-white dark:bg-gray-900 dark:text-white"
+              className="rounded-xl border border-gray-200 bg-gray-900 px-3 py-2 text-sm text-white dark:border-gray-900 dark:bg-white-900 dark:text-white"
             />
           </div>
         }
@@ -162,13 +289,22 @@ export default function TeacherAttendance({ onMenu }) {
             <div className="rounded-2xl border border-gray-100 bg-white p-5 shadow-sm dark:border-gray-800 dark:bg-gray-900">
               <div className="mb-3 flex items-center justify-between">
                 <h3 className="text-sm font-bold text-gray-700 dark:text-gray-300">Mark Attendance</h3>
-                <button
-                  onClick={saveAttendance}
-                  disabled={saving}
-                  className="rounded-xl bg-green-600 px-3 py-2 text-sm font-semibold text-white hover:bg-green-700 disabled:cursor-not-allowed disabled:opacity-60"
-                >
-                  {saving ? "Saving..." : "Save"}
-                </button>
+                <div className="inline-flex items-center gap-2">
+                  <button
+                    onClick={openBulkMessage}
+                    disabled={!absentStudents.length}
+                    className="rounded-xl border border-red-200 px-3 py-2 text-sm font-semibold text-red-600 hover:bg-red-50 disabled:cursor-not-allowed disabled:opacity-60 dark:border-red-900/40 dark:text-red-300 dark:hover:bg-red-900/30"
+                  >
+                    Message All Absent
+                  </button>
+                  <button
+                    onClick={saveAttendance}
+                    disabled={saving}
+                    className="rounded-xl bg-green-600 px-3 py-2 text-sm font-semibold text-white hover:bg-green-700 disabled:cursor-not-allowed disabled:opacity-60"
+                  >
+                    {saving ? "Saving..." : "Save"}
+                  </button>
+                </div>
               </div>
 
               <div className="mb-3 flex gap-2">
@@ -180,32 +316,118 @@ export default function TeacherAttendance({ onMenu }) {
                 </button>
               </div>
 
-              <div className="space-y-2">
-                {(data.students || []).map((student) => (
-                  <div key={student._id} className="flex items-center justify-between rounded-xl border border-gray-100 p-3 dark:border-gray-800">
-                    <div>
-                      <p className="text-sm font-semibold text-gray-700 dark:text-gray-300">{student.fullName}</p>
-                      <p className="text-xs text-gray-500">Roll: {student.rollNumber}</p>
-                    </div>
-                    <div className="inline-flex gap-2">
-                      {["Present", "Absent"].map((status) => (
-                        <button
-                          key={status}
-                          onClick={() => setAttState((prev) => ({ ...prev, [student._id]: status }))}
-                          className={`rounded-full px-3 py-1 text-xs font-semibold ${
-                            attState[student._id] === status
-                              ? status === "Present"
-                                ? "bg-green-600 text-white"
-                                : "bg-red-500 text-white"
-                              : "bg-gray-100 text-gray-600 dark:bg-gray-800 dark:text-gray-300"
-                          }`}
-                        >
-                          {status}
-                        </button>
-                      ))}
-                    </div>
+              {bulkOpen && (
+                <div className="mb-3 rounded-xl border border-red-100 bg-red-50/60 p-3 dark:border-red-900/40 dark:bg-red-900/20">
+                  <div className="mb-2 flex items-center justify-between">
+                    <p className="text-xs font-semibold text-red-700 dark:text-red-300">
+                      Send to {absentStudents.length} absent students
+                    </p>
+                    <button
+                      onClick={() => setBulkOpen(false)}
+                      className="text-xs font-semibold text-gray-500 hover:text-gray-700 dark:text-gray-400"
+                    >
+                      Close
+                    </button>
                   </div>
-                ))}
+                  <textarea
+                    rows={3}
+                    value={bulkMessage}
+                    onChange={(e) => setBulkMessage(e.target.value)}
+                    className="w-full rounded-lg border border-red-200 bg-white px-3 py-2 text-xs text-gray-700 outline-none focus:ring-2 focus:ring-red-200 dark:border-red-900/40 dark:bg-gray-900 dark:text-gray-100"
+                  />
+                  {bulkError && (
+                    <p className="mt-2 text-xs font-medium text-red-600 dark:text-red-400">{bulkError}</p>
+                  )}
+                  <div className="mt-2 flex items-center justify-between">
+                    <p className="text-[11px] text-gray-500 dark:text-gray-400">Default: Absent Warning</p>
+                    <button
+                      onClick={sendBulkMessages}
+                      disabled={bulkSending}
+                      className="rounded-lg bg-red-600 px-3 py-1.5 text-xs font-semibold text-white hover:bg-red-700 disabled:cursor-not-allowed disabled:opacity-60"
+                    >
+                      {bulkSending ? "Sending..." : "Send to All Absent"}
+                    </button>
+                  </div>
+                </div>
+              )}
+
+              <div className="space-y-2">
+                {(data.students || []).map((student) => {
+                  const isAbsent = attState[student._id] === "Absent";
+                  const isOpen = messageOpenId === student._id;
+                  const sending = !!sendingByStudent[student._id];
+                  const sentAt = sentByStudent[student._id];
+                  return (
+                    <div key={student._id} className="rounded-xl border border-gray-100 p-3 dark:border-gray-800">
+                      <div className="flex items-center justify-between">
+                        <div>
+                          <p className="text-sm font-semibold text-gray-700 dark:text-gray-300">{student.fullName}</p>
+                          <p className="text-xs text-gray-500">Roll: {student.rollNumber}</p>
+                        </div>
+                        <div className="inline-flex items-center gap-2">
+                          {["Present", "Absent"].map((status) => (
+                            <button
+                              key={status}
+                              onClick={() => setAttState((prev) => ({ ...prev, [student._id]: status }))}
+                              className={`rounded-full px-3 py-1 text-xs font-semibold ${
+                                attState[student._id] === status
+                                  ? status === "Present"
+                                    ? "bg-green-600 text-white"
+                                    : "bg-red-500 text-white"
+                                  : "bg-gray-100 text-gray-600 dark:bg-gray-800 dark:text-gray-300"
+                              }`}
+                            >
+                              {status}
+                            </button>
+                          ))}
+                          {isAbsent && (
+                            <button
+                              onClick={() => openMessageEditor(student)}
+                              className="inline-flex items-center gap-1 rounded-full border border-red-200 px-3 py-1 text-xs font-semibold text-red-600 hover:bg-red-50 dark:border-red-900/50 dark:text-red-300 dark:hover:bg-red-900/30"
+                            >
+                              <MessageSquare size={14} />
+                              Message
+                            </button>
+                          )}
+                        </div>
+                      </div>
+
+                      {isAbsent && sentAt && (
+                        <p className="mt-2 text-xs font-medium text-green-600 dark:text-green-400">
+                          Message sent
+                        </p>
+                      )}
+
+                      {isAbsent && isOpen && (
+                        <div className="mt-3 space-y-2 rounded-xl border border-red-100 bg-red-50/60 p-3 dark:border-red-900/40 dark:bg-red-900/20">
+                          <textarea
+                            rows={3}
+                            value={messageDrafts[student._id] || ""}
+                            onChange={(e) =>
+                              setMessageDrafts((prev) => ({ ...prev, [student._id]: e.target.value }))
+                            }
+                            className="w-full rounded-lg border border-red-200 bg-white px-3 py-2 text-xs text-gray-700 outline-none focus:ring-2 focus:ring-red-200 dark:border-red-900/40 dark:bg-gray-900 dark:text-gray-100"
+                          />
+                          {messageError && (
+                            <p className="text-xs font-medium text-red-600 dark:text-red-400">{messageError}</p>
+                          )}
+                          <div className="flex items-center justify-between">
+                            <p className="text-[11px] text-gray-500 dark:text-gray-400">
+                              Default: Absent Warning
+                            </p>
+                            <button
+                              onClick={() => sendAbsentMessage(student)}
+                              disabled={sending}
+                              className="rounded-lg bg-red-600 px-3 py-1.5 text-xs font-semibold text-white hover:bg-red-700 disabled:cursor-not-allowed disabled:opacity-60"
+                            >
+                              {sending ? "Sending..." : "Send Message"}
+                            </button>
+                          </div>
+                        </div>
+                      )}
+                    </div>
+                  );
+                })}
               </div>
             </div>
 

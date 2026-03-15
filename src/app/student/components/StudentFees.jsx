@@ -1,5 +1,6 @@
 "use client";
 
+import { useState } from "react";
 import { AlertCircle, CheckCircle, Wallet } from "lucide-react";
 import PageHeader from "../../admin/PageHeader";
 
@@ -20,6 +21,47 @@ function toPercent(status) {
 
 export default function StudentFees({ onMenu, data }) {
   const fee = data?.fee || null;
+  const [contactOpen, setContactOpen] = useState(false);
+  const [submitting, setSubmitting] = useState(false);
+  const [formError, setFormError] = useState("");
+  const [formSuccess, setFormSuccess] = useState("");
+  const [form, setForm] = useState({
+    category: "Payment Issue",
+    message: "",
+    attachment: null,
+  });
+
+  const submitQuery = async () => {
+    try {
+      setSubmitting(true);
+      setFormError("");
+      setFormSuccess("");
+      if (!form.message.trim()) {
+        setFormError("Please enter your message.");
+        return;
+      }
+
+      const formData = new FormData();
+      formData.append("category", form.category);
+      formData.append("message", form.message.trim());
+      if (form.attachment) formData.append("attachment", form.attachment);
+
+      const response = await fetch("/api/student/fee-queries", {
+        method: "POST",
+        credentials: "include",
+        body: formData,
+      });
+      const json = await response.json();
+      if (!response.ok || !json.success) throw new Error(json?.message || "Failed to send query");
+
+      setFormSuccess("Your message has been sent to the teacher.");
+      setForm((prev) => ({ ...prev, message: "", attachment: null }));
+    } catch (err) {
+      setFormError(err?.message || "Failed to send query");
+    } finally {
+      setSubmitting(false);
+    }
+  };
 
   return (
     <div className="w-full min-w-0 overflow-x-hidden px-4 py-4 sm:px-5 lg:px-6 lg:py-3 xl:px-8">
@@ -80,6 +122,91 @@ export default function StudentFees({ onMenu, data }) {
               Please contact your class teacher to update payment status.
             </div>
           )}
+
+          <div className="mt-4">
+            <button
+              onClick={() => {
+                setContactOpen(true);
+                setFormError("");
+                setFormSuccess("");
+              }}
+              className="rounded-xl bg-gray-900 px-4 py-2 text-sm font-semibold text-white hover:opacity-85 dark:bg-white dark:text-gray-900"
+            >
+              Contact Teacher
+            </button>
+          </div>
+        </div>
+      )}
+
+      {contactOpen && (
+        <div className="fixed inset-0 z-40 flex items-center justify-center bg-black/40 px-4">
+          <div className="w-full max-w-lg rounded-2xl border border-gray-200 bg-white p-5 shadow-lg dark:border-gray-800 dark:bg-gray-900">
+            <div className="mb-3 flex items-center justify-between">
+              <h3 className="text-sm font-bold text-gray-700 dark:text-gray-200">Contact Teacher</h3>
+              <button
+                onClick={() => setContactOpen(false)}
+                className="text-xs font-semibold text-gray-500 hover:text-gray-700 dark:text-gray-400"
+              >
+                Close
+              </button>
+            </div>
+
+            <div className="space-y-3 text-sm">
+              <div>
+                <label className="mb-1 block text-xs font-semibold text-gray-500">Category</label>
+                <select
+                  value={form.category}
+                  onChange={(e) => setForm((prev) => ({ ...prev, category: e.target.value }))}
+                  className="w-full rounded-lg border border-gray-200 bg-white px-3 py-2 text-sm text-gray-700 dark:border-gray-700 dark:bg-gray-900 dark:text-gray-200"
+                >
+                  {["Payment Issue", "Installment Request", "Fee Correction", "Other"].map((option) => (
+                    <option key={option} value={option}>
+                      {option}
+                    </option>
+                  ))}
+                </select>
+              </div>
+
+              <div>
+                <label className="mb-1 block text-xs font-semibold text-gray-500">Message</label>
+                <textarea
+                  rows={4}
+                  value={form.message}
+                  onChange={(e) => setForm((prev) => ({ ...prev, message: e.target.value }))}
+                  className="w-full rounded-lg border border-gray-200 bg-white px-3 py-2 text-sm text-gray-700 dark:border-gray-700 dark:bg-gray-900 dark:text-gray-200"
+                />
+              </div>
+
+              <div>
+                <label className="mb-1 block text-xs font-semibold text-gray-500">Attachment (optional)</label>
+                <input
+                  type="file"
+                  accept="image/*"
+                  onChange={(e) => setForm((prev) => ({ ...prev, attachment: e.target.files?.[0] || null }))}
+                  className="w-full rounded-lg border border-gray-200 bg-white px-3 py-2 text-xs text-gray-700 dark:border-gray-700 dark:bg-gray-900 dark:text-gray-200"
+                />
+              </div>
+
+              {formError && <p className="text-xs font-medium text-red-600 dark:text-red-400">{formError}</p>}
+              {formSuccess && <p className="text-xs font-medium text-green-600 dark:text-green-400">{formSuccess}</p>}
+            </div>
+
+            <div className="mt-4 flex justify-end gap-2">
+              <button
+                onClick={() => setContactOpen(false)}
+                className="rounded-lg border border-gray-200 px-3 py-2 text-xs font-semibold text-gray-600 dark:border-gray-700 dark:text-gray-300"
+              >
+                Cancel
+              </button>
+              <button
+                onClick={submitQuery}
+                disabled={submitting}
+                className="rounded-lg bg-green-600 px-3 py-2 text-xs font-semibold text-white hover:bg-green-700 disabled:cursor-not-allowed disabled:opacity-60"
+              >
+                {submitting ? "Sending..." : "Send Message"}
+              </button>
+            </div>
+          </div>
         </div>
       )}
     </div>

@@ -9,6 +9,9 @@ import StudentAttendancePage from "./components/StudentAttendancePage";
 import StudentMarks from "./components/StudentMarks";
 import StudentFees from "./components/StudentFees";
 import StudentReportCard from "./components/StudentReportCard";
+import StudentNotifications from "./components/StudentNotifications";
+import StudentApplications from "./components/StudentApplications";
+import StudentAssignments from "./components/StudentAssignments";
 
 const POLL_MS = 15000;
 
@@ -20,6 +23,7 @@ export default function StudentClient() {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState("");
   const [data, setData] = useState(null);
+  const [notificationsCount, setNotificationsCount] = useState(0);
 
   const openMenu = () => setMobileOpen(true);
 
@@ -43,17 +47,31 @@ export default function StudentClient() {
     }
   };
 
+  const loadNotificationsCount = async () => {
+    try {
+      const response = await fetch("/api/student/notifications?count=1", { credentials: "include" });
+      const json = await response.json();
+      if (!response.ok || !json?.success) return;
+      const total = Number(json?.data?.total || 0);
+      if (Number.isFinite(total)) setNotificationsCount(total);
+    } catch {
+      // no-op
+    }
+  };
+
   useEffect(() => {
     let cancelled = false;
 
     const bootstrap = async () => {
       await loadStudentData();
+      await loadNotificationsCount();
     };
     bootstrap();
 
     const id = setInterval(async () => {
       if (!cancelled) {
         await loadStudentData({ silent: true });
+        await loadNotificationsCount();
       }
     }, POLL_MS);
 
@@ -64,6 +82,9 @@ export default function StudentClient() {
   }, []);
 
   const handleNav = useCallback((tab) => {
+    if (tab === "notifications") {
+      setNotificationsCount(0);
+    }
     router.push(`/student?tab=${tab}`);
     setMobileOpen(false);
   }, [router]);
@@ -96,7 +117,12 @@ export default function StudentClient() {
     if (currentPage === "attendance") return <StudentAttendancePage onMenu={openMenu} data={data} />;
     if (currentPage === "marks") return <StudentMarks onMenu={openMenu} data={data} />;
     if (currentPage === "fees") return <StudentFees onMenu={openMenu} data={data} />;
+    if (currentPage === "assignments") return <StudentAssignments onMenu={openMenu} />;
     if (currentPage === "report") return <StudentReportCard onMenu={openMenu} data={data} />;
+    if (currentPage === "notifications") {
+      return <StudentNotifications onMenu={openMenu} onSeen={loadNotificationsCount} />;
+    }
+    if (currentPage === "applications") return <StudentApplications onMenu={openMenu} />;
     return <StudentDashboard onMenu={openMenu} onNav={handleNav} onPhotoSaved={handlePhotoSaved} data={data} />;
   }, [currentPage, data, handleNav, handlePhotoSaved]);
 
@@ -142,6 +168,7 @@ export default function StudentClient() {
         onNav={handleNav}
         onLogout={handleLogout}
         user={data?.user || { name: "Student", role: "student" }}
+        notificationsCount={notificationsCount}
         mobileOpen={mobileOpen}
         setMobileOpen={setMobileOpen}
       />

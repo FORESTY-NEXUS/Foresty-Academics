@@ -39,7 +39,7 @@ export default function StudentReportCard({ onMenu, data }) {
   const avg = maxTotal ? Math.round((total / maxTotal) * 100) : 0;
 
   return (
-    <div className="w-full min-w-0 overflow-x-hidden px-4 py-4 sm:px-5 lg:px-6 lg:py-3 xl:px-8">
+    <div className="w-full h-screen min-w-0 overflow-x-hidden px-4 py-4 sm:px-5 lg:px-6 lg:py-3 xl:px-8">
       <PageHeader
         title="Report Card"
         subtitle="Academic report"

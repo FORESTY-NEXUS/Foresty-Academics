@@ -8,6 +8,8 @@ import TeacherStudents from "./components/Students/TeacherStudents";
 import TeacherAttendance from "./components/Attendence/TeacherAttendance";
 import TeacherMarks from "./components/marks/TeacherMarks";
 import TeacherFees from "./components/Fees/TeacherFees";
+import TeacherInbox from "./components/Inbox/TeacherInbox";
+import TeacherAssignments from "./components/Assignments/TeacherAssignments";
 
 export default function TeacherClient() {
   const router = useRouter();
@@ -63,6 +65,8 @@ export default function TeacherClient() {
     if (currentPage === "attendance") return <TeacherAttendance onMenu={openMenu} />;
     if (currentPage === "marks") return <TeacherMarks onMenu={openMenu} />;
     if (currentPage === "fees") return <TeacherFees onMenu={openMenu} />;
+    if (currentPage === "assignments") return <TeacherAssignments onMenu={openMenu} />;
+    if (currentPage === "inbox") return <TeacherInbox onMenu={openMenu} />;
     return <TeacherDashboard onMenu={openMenu} />;
   }, [currentPage]);
 
