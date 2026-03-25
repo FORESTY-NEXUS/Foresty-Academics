@@ -41,7 +41,7 @@ export default function Navbar() {
         }
       `}
     >
-      <nav className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 flex items-center justify-between">
+      <nav className="mx-auto flex w-full max-w-[88rem] items-center justify-between px-4 sm:px-6 lg:px-8">
         {/* ── Logo ── */}
         <Link href="/" className="flex items-center gap-3 group">
           {/* conic-gradient ring */}

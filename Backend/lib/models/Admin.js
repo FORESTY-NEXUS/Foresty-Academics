@@ -42,6 +42,10 @@ const AdminSchema = new mongoose.Schema(
       type: String,
       default: "admin",
     },
+    totalFees: {
+      type: Number,
+      default: null,
+    },
     isActive: {
       type: Boolean,
       default: true,

@@ -7,6 +7,7 @@ import AdminDashboard from "./adminDashboard";
 import AdminTeachers from "./all teachers/AdminTeachers";
 import AdminClasses from "./Allclases/AdminClasses";
 import AdminAllStudents from "./allstudents/AdminAllStudents";
+import dashboardBg from "../images/dashboard.png";
 
 function ComingSoon({ title, onMenu }) {
   return (
@@ -70,7 +71,7 @@ export default function AdminClient() {
 
       <main 
         className="min-w-0 flex-1 overflow-y-auto overflow-x-hidden lg:pl-64 bg-cover bg-center bg-no-repeat bg-fixed relative"
-        style={{ backgroundImage: `url('/dashboard.png')` }}
+        style={{ backgroundImage: `url(${dashboardBg.src})` }}
       >
         <div className="min-h-full w-full bg-gray-50/80 dark:bg-gray-950/50 backdrop-blur-[2px]">
           {content}

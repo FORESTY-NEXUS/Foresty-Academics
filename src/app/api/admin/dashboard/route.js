@@ -2,13 +2,34 @@ import { NextResponse } from "next/server";
 import { connectDB } from "../../../../../Backend/lib/db";
 import Student from "../../../../../Backend/lib/models/Student";
 import Teacher from "../../../../../Backend/lib/models/Teacher";
+import { getAdminContext, getAdmin } from "../_utils";
 
-export async function GET() {
+export async function GET(req) {
   try {
+    const auth = getAdminContext(req);
+    if (auth.error) {
+      return NextResponse.json(
+        { success: false, message: auth.error },
+        { status: auth.status }
+      );
+    }
+
     await connectDB();
 
-    const students = await Student.find({ isActive: true }).lean();
-    const teachers = await Teacher.find({ isActive: true }).lean();
+    const { admin, error, status } = await getAdmin(auth);
+    if (error) {
+      return NextResponse.json({ success: false, message: error }, { status });
+    }
+
+    const students = await Student.find({ 
+      instituteId: auth.instituteObjectId,
+      isActive: true 
+    }).lean();
+    
+    const teachers = await Teacher.find({ 
+      instituteId: auth.instituteObjectId,
+      isActive: true 
+    }).lean();
 
     // Calculate fee statistics
     const totalPending = students.reduce((sum, student) => {
@@ -28,6 +49,7 @@ export async function GET() {
       data: {
         totalStudents: students.length,
         totalTeachers: teachers.length,
+        totalFees: admin.totalFees,
         totalPending,
         totalPaid,
         paidStudents,

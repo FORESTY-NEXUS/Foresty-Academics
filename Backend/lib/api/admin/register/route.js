@@ -50,14 +50,22 @@ export async function POST(req) {
       return NextResponse.json({ message: "Admin already exists" }, { status: 400 });
     }
 
+    // ── Enforce OTP verification ──
     const otpRecord = await AdminOtp.findOne({ email: trimmedEmail });
-    if (!otpRecord) {
-      return NextResponse.json({ message: "Please verify OTP before registering" }, { status: 400 });
+    if (!otpRecord || !otpRecord.verifiedAt) {
+      return NextResponse.json(
+        { message: "Email not verified. Please verify OTP first." },
+        { status: 403 }
+      );
+    }
+    const VERIFICATION_WINDOW_MS = 15 * 60 * 1000; // 15 minutes
+    if (Date.now() - otpRecord.verifiedAt.getTime() > VERIFICATION_WINDOW_MS) {
+      return NextResponse.json(
+        { message: "OTP verification expired. Please verify again." },
+        { status: 403 }
+      );
     }
 
-    if (!otpRecord.verifiedAt || otpRecord.expiresAt.getTime() < Date.now()) {
-      return NextResponse.json({ message: "OTP is not verified or expired" }, { status: 400 });
-    }
 
     const hashed = await bcrypt.hash(trimmedPassword, 12);
     const admin = await Admin.create({
@@ -70,6 +78,7 @@ export async function POST(req) {
       instituteId: new mongoose.Types.ObjectId(),
     });
 
+    // Cleanup OTP record after successful registration
     await AdminOtp.deleteOne({ email: trimmedEmail });
 
     return NextResponse.json(

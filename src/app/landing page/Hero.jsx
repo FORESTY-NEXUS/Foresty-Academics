@@ -216,9 +216,9 @@ export default function Hero() {
       <div className="absolute top-1/3 left-0 w-full h-px glow-line opacity-20" />
       <div className="absolute bottom-1/4 left-0 w-full h-px glow-line opacity-10" />
 
-      <div className="relative max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 w-full">
-        <div className="grid lg:grid-cols-2 gap-12 lg:gap-16 items-center">
-          <div className="space-y-8">
+      <div className="relative mx-auto w-full max-w-[88rem] px-4 sm:px-6 lg:px-8">
+        <div className="grid items-center gap-12 lg:grid-cols-[minmax(0,1fr)_minmax(520px,620px)] lg:justify-between lg:gap-20">
+          <div className="max-w-2xl space-y-8 justify-self-start">
 
             <div
               className="opacity-0 animate-fade-up"
@@ -319,7 +319,7 @@ export default function Hero() {
           </div>
 
           <div
-            className="opacity-0 animate-fade-up hidden lg:block"
+            className="opacity-0 animate-fade-up hidden justify-self-end lg:block"
             style={{ animationDelay: "400ms", animationFillMode: "forwards" }}
           >
             <DashboardMockup />

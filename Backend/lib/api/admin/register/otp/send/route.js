@@ -3,6 +3,7 @@ import crypto from "crypto";
 import { connectDB } from "../../../../../db";
 import Admin from "../../../../../models/Admin";
 import AdminOtp from "../../../../../models/AdminOtp";
+import { sendOtpEmail } from "../../../../../utils/mailer";
 
 const OTP_LENGTH = 6;
 const OTP_TTL_MS = 10 * 60 * 1000;
@@ -49,13 +50,14 @@ export async function POST(req) {
           verifiedAt: null,
         },
       },
-      { upsert: true, new: true }
+      { upsert: true, returnDocument: "after" }
     );
 
-    // TODO: Replace with SMTP/email provider delivery.
     if (process.env.NODE_ENV !== "production") {
       console.log(`[OTP][admin-register] ${trimmedEmail}: ${otp}`);
     }
+
+    await sendOtpEmail({ to: trimmedEmail, otp });
 
     return NextResponse.json({
       success: true,

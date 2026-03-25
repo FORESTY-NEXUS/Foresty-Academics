@@ -23,6 +23,7 @@
     "mongoose": "^9.2.2",
     "next": "16.1.6",
     "next-cloudinary": "^6.17.5",
+    "nodemailer": "^8.0.2",
     "react": "19.2.3",
     "react-dom": "19.2.3",
     "recharts": "^3.7.0"

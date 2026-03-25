@@ -10,6 +10,7 @@ import TeacherMarks from "./components/marks/TeacherMarks";
 import TeacherFees from "./components/Fees/TeacherFees";
 import TeacherInbox from "./components/Inbox/TeacherInbox";
 import TeacherAssignments from "./components/Assignments/TeacherAssignments";
+import dashboardBg from "../images/dashboard.png";
 
 export default function TeacherClient() {
   const router = useRouter();
@@ -82,7 +83,7 @@ export default function TeacherClient() {
       />
       <main 
         className="min-w-0 flex-1 overflow-y-auto overflow-x-hidden lg:pl-64 bg-cover bg-center bg-no-repeat bg-fixed relative"
-        style={{ backgroundImage: `url('/dashboard.png')` }}
+        style={{ backgroundImage: `url(${dashboardBg.src})` }}
       >
         <div className="min-h-full w-full bg-gray-50/80 dark:bg-gray-950/50 backdrop-blur-[2px]">
           {content}

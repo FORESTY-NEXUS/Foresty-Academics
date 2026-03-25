@@ -12,6 +12,7 @@ import StudentReportCard from "./components/StudentReportCard";
 import StudentNotifications from "./components/StudentNotifications";
 import StudentApplications from "./components/StudentApplications";
 import StudentAssignments from "./components/StudentAssignments";
+import dashboardBg from "../images/dashboard.png";
 
 const POLL_MS = 15000;
 
@@ -176,7 +177,7 @@ export default function StudentClient() {
       {/* Main Content */}
       <main 
         className="min-w-0 flex-1 overflow-x-hidden bg-cover bg-center bg-no-repeat bg-fixed relative"
-        style={{ backgroundImage: `url('/dashboard.png')` }}
+        style={{ backgroundImage: `url(${dashboardBg.src})` }}
       >
         <div className="min-h-full w-full bg-gray-50/80 dark:bg-gray-950/50 backdrop-blur-[2px]">
           {content}
