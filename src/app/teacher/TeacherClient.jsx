@@ -11,6 +11,7 @@ import TeacherFees from "./components/Fees/TeacherFees";
 import TeacherInbox from "./components/Inbox/TeacherInbox";
 import TeacherAssignments from "./components/Assignments/TeacherAssignments";
 import dashboardBg from "../images/dashboard.png";
+import Image from "next/image";
 
 export default function TeacherClient() {
   const router = useRouter();

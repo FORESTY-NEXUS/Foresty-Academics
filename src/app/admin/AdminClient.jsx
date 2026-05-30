@@ -8,6 +8,7 @@ import AdminTeachers from "./all teachers/AdminTeachers";
 import AdminClasses from "./Allclases/AdminClasses";
 import AdminAllStudents from "./allstudents/AdminAllStudents";
 import dashboardBg from "../images/dashboard.png";
+import Image from "next/image";
 
 function ComingSoon({ title, onMenu }) {
   return (

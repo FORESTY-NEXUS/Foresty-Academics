@@ -13,6 +13,7 @@ import StudentNotifications from "./components/StudentNotifications";
 import StudentApplications from "./components/StudentApplications";
 import StudentAssignments from "./components/StudentAssignments";
 import dashboardBg from "../images/dashboard.png";
+import Image from "next/image";
 
 const POLL_MS = 15000;
 
