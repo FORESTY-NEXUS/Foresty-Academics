@@ -15,8 +15,8 @@ const StatPill = ({ number, label, delay }) => (
 );
 
 const DashboardMockup = () => (
-  <div className="relative w-full max-w-lg mx-auto">
-    <div className="absolute inset-0 bg-forest-500/20 rounded-3xl blur-3xl scale-90" />
+  <div className="relative w-full max-w-lg mx-auto px-2 sm:px-0">
+    <div className="absolute inset-0 bg-forest-500/20 rounded-3xl blur-3xl scale-70" />
 
     <div
       className="relative rounded-2xl overflow-hidden border border-gold-500/15 shadow-2xl shadow-forest-950/60 animate-float"
@@ -25,29 +25,29 @@ const DashboardMockup = () => (
           "linear-gradient(145deg, rgba(15,41,18,0.95) 0%, rgba(10,26,12,0.98) 100%)",
       }}
     >
-      <div className="flex items-center gap-2 px-4 py-3 border-b border-gold-500/10">
-        <div className="w-3 h-3 rounded-full bg-red-500/60" />
-        <div className="w-3 h-3 rounded-full bg-yellow-500/60" />
-        <div className="w-3 h-3 rounded-full bg-green-500/60" />
-        <div className="flex-1 ml-2 h-5 rounded-full bg-forest-800/80 flex items-center px-3">
-          <span className="font-mono text-[10px] text-ivory-100/30">
+      <div className="flex items-center gap-2 px-3 py-2.5 sm:px-4 sm:py-3 border-b border-gold-500/10">
+        <div className="w-2.5 h-2.5 sm:w-3 sm:h-3 rounded-full bg-red-500/60" />
+        <div className="w-2.5 h-2.5 sm:w-3 sm:h-3 rounded-full bg-yellow-500/60" />
+        <div className="w-2.5 h-2.5 sm:w-3 sm:h-3 rounded-full bg-green-500/60" />
+        <div className="flex-1 ml-1.5 sm:ml-2 h-5 rounded-full bg-forest-800/80 flex items-center px-2 sm:px-3 min-w-0">
+          <span className="font-mono text-[9px] sm:text-[10px] text-ivory-100/30 truncate">
             foresty.academics/teacher/dashboard
           </span>
         </div>
       </div>
 
-      <div className="p-5 space-y-4">
+      <div className="p-3 sm:p-5 space-y-3 sm:space-y-4">
         <div className="flex items-center justify-between">
           <div>
-            <p className="font-body text-xs text-ivory-100/50">
+            <p className="font-body text-[11px] sm:text-xs text-ivory-100/50">
               Class 10-A Dashboard
             </p>
-            <p className="font-mono text-[10px] text-ivory-100/30 mt-1">
+            <p className="font-mono text-[9px] sm:text-[10px] text-ivory-100/30 mt-1">
               Welcome, Teacher
             </p>
           </div>
-          <div className="px-3 py-1.5 rounded-full bg-forest-500/30 border border-forest-400/20">
-            <span className="font-mono text-[10px] text-forest-300">Live</span>
+          <div className="px-2.5 py-1 sm:px-3 sm:py-1.5 rounded-full bg-forest-500/30 border border-forest-400/20">
+            <span className="font-mono text-[9px] sm:text-[10px] text-forest-300">Live</span>
           </div>
         </div>
 
@@ -60,27 +60,27 @@ const DashboardMockup = () => (
           ].map((stat) => (
             <div
               key={stat.label}
-              className="rounded-xl p-2.5 bg-forest-800/60 border border-gold-500/8"
+              className="rounded-xl p-2 sm:p-2.5 bg-forest-800/60 border border-gold-500/8"
             >
               <div
-                className={`font-display text-base font-semibold ${stat.color}`}
+                className={`font-display text-sm sm:text-base font-semibold ${stat.color}`}
               >
                 {stat.value}
               </div>
-              <div className="font-body text-[9px] text-ivory-100/40 mt-0.5">
+              <div className="font-body text-[8px] sm:text-[9px] text-ivory-100/40 mt-0.5">
                 {stat.label}
               </div>
             </div>
           ))}
         </div>
 
-        <div className="grid grid-cols-2 gap-2.5">
-          <div className="rounded-xl p-3 bg-forest-800/40 border border-gold-500/8">
+        <div className="grid gap-2.5 sm:grid-cols-2">
+          <div className="rounded-xl p-2.5 sm:p-3 bg-forest-800/40 border border-gold-500/8">
             <div className="flex items-center justify-between mb-2">
-              <span className="font-body text-[10px] text-ivory-100/50">
+              <span className="font-body text-[9px] sm:text-[10px] text-ivory-100/50">
                 Assigned Classes
               </span>
-              <span className="font-mono text-[9px] text-gold-400">
+              <span className="font-mono text-[8px] sm:text-[9px] text-gold-400">
                 2 classes
               </span>
             </div>
@@ -94,10 +94,10 @@ const DashboardMockup = () => (
                   className="rounded-lg border border-gold-500/8 bg-forest-900/60 px-2 py-1.5"
                 >
                   <div className="flex items-center justify-between">
-                    <span className="font-body text-[10px] text-ivory-100/75">
+                    <span className="font-body text-[9px] sm:text-[10px] text-ivory-100/75">
                       {cls.name}
                     </span>
-                    <span className="font-mono text-[9px] text-sky-300">
+                    <span className="font-mono text-[8px] sm:text-[9px] text-sky-300">
                       {cls.students} students
                     </span>
                   </div>
@@ -109,12 +109,12 @@ const DashboardMockup = () => (
             </div>
           </div>
 
-          <div className="rounded-xl p-3 bg-forest-800/40 border border-gold-500/8">
+          <div className="rounded-xl p-2.5 sm:p-3 bg-forest-800/40 border border-gold-500/8">
             <div className="flex items-center justify-between mb-2">
-              <span className="font-body text-[10px] text-ivory-100/50">
+              <span className="font-body text-[9px] sm:text-[10px] text-ivory-100/50">
                 Current Class Students
               </span>
-              <span className="font-mono text-[9px] text-forest-300">10-A</span>
+              <span className="font-mono text-[8px] sm:text-[9px] text-forest-300">10-A</span>
             </div>
             <div className="space-y-1.5">
               {[
@@ -126,11 +126,11 @@ const DashboardMockup = () => (
                   key={student.name}
                   className="flex items-center gap-2 rounded-lg border border-gold-500/6 bg-forest-900/50 px-2 py-1.5"
                 >
-                  <div className="w-6 h-6 rounded-full bg-forest-700/60 flex items-center justify-center font-mono text-[9px] text-ivory-100/70">
+                  <div className="w-6 h-6 rounded-full bg-forest-700/60 flex items-center justify-center font-mono text-[8px] sm:text-[9px] text-ivory-100/70">
                     {student.name[0]}
                   </div>
                   <div className="flex-1">
-                    <p className="font-body text-[10px] text-ivory-100/75">
+                    <p className="font-body text-[9px] sm:text-[10px] text-ivory-100/75">
                       {student.name}
                     </p>
                     <p className="font-mono text-[8px] text-ivory-100/35">
@@ -138,7 +138,7 @@ const DashboardMockup = () => (
                     </p>
                   </div>
                   <span
-                    className={`font-mono text-[8px] px-1.5 py-0.5 rounded-full ${
+                    className={`font-mono text-[7px] sm:text-[8px] px-1.5 py-0.5 rounded-full ${
                       student.status === "PAID"
                         ? "bg-forest-500/20 text-forest-300"
                         : student.status === "PARTIAL"
@@ -157,18 +157,18 @@ const DashboardMockup = () => (
     </div>
 
     <div
-      className="absolute -bottom-4 -left-4 px-4 py-2.5 rounded-2xl card-glass border border-gold-500/20 shadow-xl animate-float"
+      className="absolute -bottom-3 left-2 right-12 sm:right-auto sm:-bottom-4 sm:-left-4 px-3 py-2 sm:px-4 sm:py-2.5 rounded-2xl card-glass border border-gold-500/20 shadow-xl animate-float"
       style={{ animationDelay: "2s" }}
     >
       <div className="flex items-center gap-2">
-        <div className="w-8 h-8 rounded-xl bg-gold-500/20 flex items-center justify-center text-sm">
+        <div className="w-7 h-7 sm:w-8 sm:h-8 rounded-xl bg-gold-500/20 flex items-center justify-center text-xs sm:text-sm">
           OK
         </div>
         <div>
-          <div className="font-body text-xs font-medium text-ivory-100">
+          <div className="font-body text-[11px] sm:text-xs font-medium text-ivory-100">
             Attendance marked
           </div>
-          <div className="font-mono text-[10px] text-gold-400">
+          <div className="font-mono text-[9px] sm:text-[10px] text-gold-400">
             32 students - just now
           </div>
         </div>
@@ -176,18 +176,18 @@ const DashboardMockup = () => (
     </div>
 
     <div
-      className="absolute -top-4 -right-4 px-4 py-2.5 rounded-2xl card-glass border border-forest-400/20 shadow-xl animate-float"
+      className="absolute -top-3 right-2 left-12 sm:left-auto sm:-top-4 sm:-right-4 px-3 py-2 sm:px-4 sm:py-2.5 rounded-2xl card-glass border border-forest-400/20 shadow-xl animate-float"
       style={{ animationDelay: "1s" }}
     >
       <div className="flex items-center gap-2">
-        <div className="w-8 h-8 rounded-xl bg-forest-500/20 flex items-center justify-center text-sm">
+        <div className="w-7 h-7 sm:w-8 sm:h-8 rounded-xl bg-forest-500/20 flex items-center justify-center text-xs sm:text-sm">
           R
         </div>
         <div>
-          <div className="font-body text-xs font-medium text-ivory-100">
+          <div className="font-body text-[11px] sm:text-xs font-medium text-ivory-100">
             Report ready
           </div>
-          <div className="font-mono text-[10px] text-forest-300">
+          <div className="font-mono text-[9px] sm:text-[10px] text-forest-300">
             Monthly summary
           </div>
         </div>
@@ -217,7 +217,7 @@ export default function Hero() {
       <div className="absolute bottom-1/4 left-0 w-full h-px glow-line opacity-10" />
 
       <div className="relative mx-auto w-full max-w-[88rem] px-4 sm:px-6 lg:px-8">
-        <div className="grid items-center gap-12 lg:grid-cols-[minmax(0,1fr)_minmax(520px,620px)] lg:justify-between lg:gap-20">
+        <div className="grid items-center gap-10 lg:grid-cols-[minmax(0,1fr)_minmax(520px,620px)] lg:justify-between lg:gap-20">
           <div className="max-w-2xl space-y-8 justify-self-start">
 
             <div
@@ -319,7 +319,7 @@ export default function Hero() {
           </div>
 
           <div
-            className="opacity-0 animate-fade-up hidden justify-self-end lg:block"
+            className="opacity-0 animate-fade-up justify-self-center w-full max-w-xl lg:max-w-none lg:justify-self-end"
             style={{ animationDelay: "400ms", animationFillMode: "forwards" }}
           >
             <DashboardMockup />

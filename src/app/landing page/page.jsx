@@ -1,37 +1,46 @@
+import dynamic from "next/dynamic";
+import Image from "next/image";
 import Navbar from "./Navbar";
 import Hero from "./Hero";
-import Features from "./Features";
-import HowItWorks from "./HowItWorks";
-import Pricing from "./Pricing";
-import CTA from "./CTA";
 import Footer from "./Footer";
+
+// Lazy load below-the-fold components to reduce initial JavaScript payload
+const Features = dynamic(() => import("./Features"));
+const HowItWorks = dynamic(() => import("./HowItWorks"));
+const Pricing = dynamic(() => import("./Pricing"));
+const CTA = dynamic(() => import("./CTA"));
 
 export default function Home() {
   return (
     <main className="min-h-screen bg-forest-950 overflow-x-hidden">
-      <div
-        className="relative"
-        style={{
-          backgroundImage: `url('/LandingPage.png')`,
-          backgroundSize: "cover",
-          backgroundPosition: "top center",
-          backgroundAttachment: "fixed",
-          backgroundRepeat: "no-repeat",
-        }}
-      >
+      {/* Optimized Background Image Layer */}
+      <div className="fixed inset-0 z-0 pointer-events-none">
+        <Image
+          src="/LandingPage.png"
+          alt="Foresty Academics Background"
+          fill
+          priority
+          quality={85}
+          className="object-cover object-top"
+        />
         {/* Persistent dark overlay for the whole page content */}
         <div className="absolute inset-0 bg-forest-950/65 pointer-events-none" />
-
-        <div className="relative z-10">
-          <Navbar />
-          <Hero />
-          <Features />
-          <HowItWorks />
-          <Pricing />
-          <CTA />
-        </div>
       </div>
-      <Footer />
+
+      {/* Content Layer */}
+      <div className="relative z-10">
+        <Navbar />
+        <Hero />
+        <Features />
+        <HowItWorks />
+        <Pricing />
+        <CTA />
+      </div>
+      
+      {/* Footer Layer */}
+      <div className="relative z-10 bg-forest-950">
+        <Footer />
+      </div>
     </main>
   );
 }
